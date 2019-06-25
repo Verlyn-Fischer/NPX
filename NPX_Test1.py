@@ -2,10 +2,9 @@ import spacy
 import os
 import csv
 
+# Load domain expert annotations for comparison to noun phrase extraction algorithm
 
-nlp = spacy.load('en_core_web_sm')
-
-annotationPath = '/Users/verlynfischer/Desktop/annotations.csv'
+annotationPath = '/Users/verlynfischer/PycharmProjects/NPX/annotations.csv'
 annotationDict = dict()
 
 with open(annotationPath) as csv_file:
@@ -13,18 +12,18 @@ with open(annotationPath) as csv_file:
     line_count = 0
     for row in csv_reader:
         if line_count == 0:
-            #print(f'Column names are {", ".join(row)}')
             line_count += 1
         else:
             annotationDict.update({row[0] : row[1]})
-            #print(f'\t{row[0]} \t {row[1]} \t {row[2]}')
             line_count += 1
-    #print(f'Processed {line_count} lines.')
 
-desired_dict = {k:v for (k,v) in annotationDict.items() if 'FALSE' in v}
-notDesired_dict = {k:v for (k,v) in annotationDict.items() if 'TRUE' in v}
+desired_dict = {k:v for (k,v) in annotationDict.items() if 'TRUE' in v}
+notDesired_dict = {k:v for (k,v) in annotationDict.items() if 'FALSE' in v}
+
+# Perform Noun Phrase Extraction
 
 rootdir = '/Users/verlynfischer/Documents/PythonPrograms/NPXData/English'
+nlp = spacy.load('en_core_web_sm')
 
 chunkList = []
 
@@ -34,17 +33,30 @@ for subdir, dirs, files in os.walk(rootdir):
         f = open(path, "r")
         contents = f.read()
         doc = nlp(contents)
-        print('===============================')
-        print(os.path.join(subdir, file))
-        print()
+        # print('===============================')
+        # print(os.path.join(subdir, file))
+        # print()
 
         for chunk in doc.noun_chunks:
+            # Trim leading stop words (including a few I added)
+            # Trim trailing stop words (including a few I added)
             # Use NP chunk if every token is alpha
             # Use NP chunk if token count is two or greater
-            # Do not use chunk if first token is stop word and token count is two
-            # Trim first and second word of chunk if it's a stop work and the chuck token count is three or more
             # Discard strings entirely in upper case
+
             keep = True
+
+            firstToken = chunk[0].text
+
+            while nlp.vocab[firstToken].is_stop and len(chunk) > 1:
+                chunk = chunk[1:len(chunk)]
+                firstToken = chunk[0].text
+
+            lastToken = chunk[len(chunk)-1].text
+
+            while nlp.vocab[lastToken].is_stop and len(chunk) > 1:
+                chunk = chunk[0:len(chunk)-1]
+                lastToken = chunk[len(chunk)-1].text
 
             if len(chunk) == 1:
                 keep = False
@@ -53,25 +65,11 @@ for subdir, dirs, files in os.walk(rootdir):
                 if not token.is_alpha:
                     keep = False
 
-            firstToken = chunk[0].text
-
-            if nlp.vocab[firstToken].is_stop and len(chunk) == 2:
-                keep = False
-
-            if nlp.vocab[firstToken].is_stop and len(chunk) > 2:
-                chunk = chunk[1:len(chunk)]
-
-            firstToken = chunk[0].text
-
-            if nlp.vocab[firstToken].is_stop and len(chunk) > 2:
-                chunk = chunk[1:len(chunk)]
-
             if chunk.text.isupper():
                 keep = False
 
             if keep:
                 chunkList.append(chunk.text)
-                # print(chunk.text)
 
         # List Named Entities
         # print(">>>>>>>>>>>>>>>>>>>>>>>>")
@@ -81,12 +79,13 @@ for subdir, dirs, files in os.walk(rootdir):
 # Deduplicate list of NP
 chunkList = list(dict.fromkeys(chunkList))
 
+# Test against annotations
+
 inDesired = []
 inNotDesired = []
 inNothing = []
 missing = []
 
-# Test against annotations
 for testNP in chunkList:
     found = False
     if testNP in desired_dict.keys():
@@ -105,37 +104,27 @@ for testNP in desired_dict.keys():
 successes = len(inDesired)
 failures = len(inNotDesired) + len(missing)
 undetermined = len(inNothing)
-
-
+successRate = successes / (successes + failures)
 
 print('----------------')
 print('SUMMARY')
 print(f'Success: {successes}')
 print(f'Failures: {failures}')
 print(f'Undetermined: {undetermined}')
-print(f'As Desired: {len(inDesired)}\tUndesired: {len(inNotDesired)}\tNot On List: {len(inNothing)}\tMissing: {len(missing)}')
+print(f'Success Rate: {successRate}')
 print('----------------')
-print('In The Desired List')
+print('PRODUCED : ON EXPERT -DESIRED- LIST')
 for npChunk in inDesired:
     print(npChunk)
 print('----------------')
-print('In The NOT Desired List')
+print('PRODUCED : ON EXPERT -NOT DESIRED- LIST')
 for npChunk in inNotDesired:
     print(npChunk)
 print('----------------')
-print('Not on ANY List')
+print('PRODUCED : NOT ON EXPERT LIST')
 for npChunk in inNothing:
     print(npChunk)
 print('----------------')
-print('Not Produced')
+print('NOT PRODUCED : ON EXPERT -DESIRED- LIST')
 for npChunk in missing:
     print(npChunk)
-
-#
-#
-#
-# # Present results
-#
-# for npChunk in chunkList:
-#     print(npChunk)
-
