@@ -21,6 +21,9 @@ with open(annotationPath) as csv_file:
             line_count += 1
     #print(f'Processed {line_count} lines.')
 
+desired_dict = {k:v for (k,v) in annotationDict.items() if 'FALSE' in v}
+notDesired_dict = {k:v for (k,v) in annotationDict.items() if 'TRUE' in v}
+
 rootdir = '/Users/verlynfischer/Documents/PythonPrograms/NPXData/English'
 
 chunkList = []
@@ -78,11 +81,61 @@ for subdir, dirs, files in os.walk(rootdir):
 # Deduplicate list of NP
 chunkList = list(dict.fromkeys(chunkList))
 
+inDesired = []
+inNotDesired = []
+inNothing = []
+missing = []
+
 # Test against annotations
-# TBD
+for testNP in chunkList:
+    found = False
+    if testNP in desired_dict.keys():
+        inDesired.append(testNP)
+        found = True
+    if testNP in notDesired_dict.keys():
+        inNotDesired.append(testNP)
+        found = True
+    if not found:
+        inNothing.append(testNP)
 
-# Present results
+for testNP in desired_dict.keys():
+    if testNP not in chunkList:
+        missing.append(testNP)
 
-for npChunk in chunkList:
+successes = len(inDesired)
+failures = len(inNotDesired) + len(missing)
+undetermined = len(inNothing)
+
+
+
+print('----------------')
+print('SUMMARY')
+print(f'Success: {successes}')
+print(f'Failures: {failures}')
+print(f'Undetermined: {undetermined}')
+print(f'As Desired: {len(inDesired)}\tUndesired: {len(inNotDesired)}\tNot On List: {len(inNothing)}\tMissing: {len(missing)}')
+print('----------------')
+print('In The Desired List')
+for npChunk in inDesired:
     print(npChunk)
+print('----------------')
+print('In The NOT Desired List')
+for npChunk in inNotDesired:
+    print(npChunk)
+print('----------------')
+print('Not on ANY List')
+for npChunk in inNothing:
+    print(npChunk)
+print('----------------')
+print('Not Produced')
+for npChunk in missing:
+    print(npChunk)
+
+#
+#
+#
+# # Present results
+#
+# for npChunk in chunkList:
+#     print(npChunk)
 
