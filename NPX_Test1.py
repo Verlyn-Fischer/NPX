@@ -22,59 +22,61 @@ notDesired_dict = {k:v for (k,v) in annotationDict.items() if 'FALSE' in v}
 
 # Perform Noun Phrase Extraction
 
-rootdir = '/Users/verlynfischer/Documents/PythonPrograms/NPXData/English'
+# rootdir = '/Users/verlynfischer/Documents/PythonPrograms/NPXData/English'
+rootdir = 'clusterSnippets'
 nlp = spacy.load('en_core_web_sm')
 
 chunkList = []
 
 for subdir, dirs, files in os.walk(rootdir):
     for file in files:
-        path = os.path.join(subdir, file)
-        f = open(path, "r")
-        contents = f.read()
-        doc = nlp(contents)
-        # print('===============================')
-        # print(os.path.join(subdir, file))
-        # print()
+        if file != '.DS_Store':
+            path = os.path.join(subdir, file)
+            f = open(path, "r")
+            contents = f.read()
+            doc = nlp(contents)
+            # print('===============================')
+            # print(os.path.join(subdir, file))
+            # print()
 
-        for chunk in doc.noun_chunks:
-            # Trim leading stop words (including a few I added)
-            # Trim trailing stop words (including a few I added)
-            # Use NP chunk if every token is alpha
-            # Use NP chunk if token count is two or greater
-            # Discard strings entirely in upper case
+            for chunk in doc.noun_chunks:
+                # Trim leading stop words (including a few I added)
+                # Trim trailing stop words (including a few I added)
+                # Use NP chunk if every token is alpha
+                # Use NP chunk if token count is two or greater
+                # Discard strings entirely in upper case
 
-            keep = True
+                keep = True
 
-            firstToken = chunk[0].text
-
-            while nlp.vocab[firstToken].is_stop and len(chunk) > 1:
-                chunk = chunk[1:len(chunk)]
                 firstToken = chunk[0].text
 
-            lastToken = chunk[len(chunk)-1].text
+                while nlp.vocab[firstToken].is_stop and len(chunk) > 1:
+                    chunk = chunk[1:len(chunk)]
+                    firstToken = chunk[0].text
 
-            while nlp.vocab[lastToken].is_stop and len(chunk) > 1:
-                chunk = chunk[0:len(chunk)-1]
                 lastToken = chunk[len(chunk)-1].text
 
-            if len(chunk) == 1:
-                keep = False
+                while nlp.vocab[lastToken].is_stop and len(chunk) > 1:
+                    chunk = chunk[0:len(chunk)-1]
+                    lastToken = chunk[len(chunk)-1].text
 
-            for token in chunk:
-                if not token.is_alpha:
+                if len(chunk) == 1:
                     keep = False
 
-            if chunk.text.isupper():
-                keep = False
+                for token in chunk:
+                    if not token.is_alpha:
+                        keep = False
 
-            if keep:
-                chunkList.append(chunk.text)
+                if chunk.text.isupper():
+                    keep = False
 
-        # List Named Entities
-        # print(">>>>>>>>>>>>>>>>>>>>>>>>")
-        # for ent in doc.ents:
-        #     print(ent.text,":",ent.label_)
+                if keep:
+                    chunkList.append(chunk.text)
+
+            # List Named Entities
+            # print(">>>>>>>>>>>>>>>>>>>>>>>>")
+            # for ent in doc.ents:
+            #     print(ent.text,":",ent.label_)
 
 # Deduplicate list of NP
 chunkList = list(dict.fromkeys(chunkList))
@@ -124,7 +126,7 @@ print('----------------')
 print('PRODUCED : NOT ON EXPERT LIST')
 for npChunk in inNothing:
     print(npChunk)
-print('----------------')
-print('NOT PRODUCED : ON EXPERT -DESIRED- LIST')
-for npChunk in missing:
-    print(npChunk)
+# print('----------------')
+# print('NOT PRODUCED : ON EXPERT -DESIRED- LIST')
+# for npChunk in missing:
+#     print(npChunk)
