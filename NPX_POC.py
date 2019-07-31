@@ -1,8 +1,9 @@
 import spacy
 import os
+import json
 
 source_directory = '/Users/verlynfischer/partial_city_of_houston'
-output_file = '/Users/verlynfischer/NPXResults/city_of_houston_results.txt'
+output_file = '/Users/verlynfischer/NPXResults/city_of_houston_results.json'
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -69,13 +70,27 @@ def writeResults(noun_phrases,output_file):
         for item in noun_phrases:
             f.write("%s\n" % item)
 
+def writeJSON(noun_phrases,output_file):
+
+    output_json = ''
+    for np in noun_phrases:
+        output_json = output_json + '{ "create" : { "_index" : "phrases", "_type" : "phrase" } }\n'
+        output_json = output_json + '{ "phrase" : "' + np + '" }\n'
+
+    f = open(output_file,'w')
+    f.write(output_json)
+    f.close()
 
 def main():
     # Get list of noun phrases
     noun_phrases = extractNP(source_directory)
 
     # Write results to a file
-    writeResults(noun_phrases,output_file)
+    # writeResults(noun_phrases,output_file)
+
+    # Write results to a JSON
+    writeJSON(noun_phrases,output_file)
+
 
 main()
 
