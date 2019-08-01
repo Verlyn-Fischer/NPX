@@ -33,6 +33,8 @@ def extractNP(source_directory,output_path):
                         path = os.path.join(nextPath, file)
                         f = open(path, "r")
                         contents = f.read()
+                        if len(contents)>1000000:
+                            contents = contents[:999998]
                         doc = nlp(contents)
 
                         for chunk in doc.noun_chunks:
@@ -129,5 +131,5 @@ def main():
     # writeJSON(noun_phrases,output_path)
 
 
-main()
+# main()
 
