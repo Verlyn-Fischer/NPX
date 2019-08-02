@@ -68,6 +68,10 @@ def extractPhrases(source_directory):
                 for verb in [token for token in doc if token.pos == VERB]:
                     for child in verb.children:
                         if child.dep == dobj:
+
+                            # TO DO: remove phrases that are substrings of other phrases with a document
+                            # TO DO: Consider removing phrases where most words are not in vocabulary
+
                             keep = True
                             span = doc[min(child.left_edge.i, verb.i): max(child.right_edge.i + 1, verb.i)]
                             output = span.text
@@ -79,6 +83,8 @@ def extractPhrases(source_directory):
                             output = output.replace('[', '')
                             output = output.replace(',', '')
                             output = output.replace(':', '')
+                            if len(output)>60:
+                                keep = False
                             if output[:4] == 'Sent':
                                 keep = False
                             if output.isupper():
