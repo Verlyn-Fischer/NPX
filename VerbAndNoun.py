@@ -160,4 +160,4 @@ def main():
 
     # visualizeParseTree(vis_file)
 
-main()
+# main()
