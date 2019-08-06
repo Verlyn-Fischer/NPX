@@ -2,6 +2,8 @@ import spacy
 import os
 import csv
 
+# This was for comparing noun phrase extraction to annotated examples.
+
 # Load domain expert annotations for comparison to noun phrase extraction algorithm
 
 annotationPath = '/Users/verlynfischer/PycharmProjects/NPX/annotations.csv'

@@ -4,6 +4,9 @@ import csv
 from spacy import displacy
 from spacy.symbols import nsubj, VERB, dobj
 
+# This extracts nouns and verbs from a limited set of documents and prepares them
+# for analysis within a spreadsheet
+
 source_directory = '/Users/verlynfischer/COH_interesting'
 output_file = '/Users/verlynfischer/VerbResults/verb_phrase_results.csv'
 vis_file = '/Users/verlynfischer/Desktop/exampleRender.html'

@@ -1,6 +1,9 @@
 import spacy
 import os
 
+# This extracts noun phrases from all of City of Houston matter and places results into a file
+# format this can be imported into ElasticSearch
+
 source_directory = '/Users/verlynfischer/city_of_houston/ocrdata'
 # source_directory = '/Users/verlynfischer/partial_city_of_houston/ocrdata'
 output_file = '/Users/verlynfischer/NPXResults/city_of_houston_results.csv'
