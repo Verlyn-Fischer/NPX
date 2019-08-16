@@ -2,8 +2,8 @@ import requests
 import os
 
 # This serves to push data into ElasticSearch on Verlyn's machine or on a remote instance.
-source_directory = '/Users/verlynfischer/NPXResults'
-source_directory_remote = '/Users/verlynfischer/NPXResultsUpdated'
+source_directory = 'target/VPXResults'
+source_directory_remote = 'target/VPXResults'
 
 headers = {
     'Content-Type': 'application/x-ndjson',
